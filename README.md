@@ -8,6 +8,23 @@
 
 여행 코스 기록, 공유 서비스.
 
+
+![Group 17](https://github.com/PJScript/trip/assets/74460103/44f03209-2301-42d6-9835-f7715c6fb591)
+
+![Group 18](https://github.com/PJScript/trip/assets/74460103/80e51141-5527-4413-a6f5-da28db5fd1bc)
+
+![Group 19](https://github.com/PJScript/trip/assets/74460103/8b3513b0-566c-47e3-ba78-9c3365942413)
+
+![Group 14](https://github.com/PJScript/trip/assets/74460103/dd981f99-db2e-4bc5-91d3-2ad46e23b82b)
+
+![Group 13](https://github.com/PJScript/trip/assets/74460103/f8b769eb-b85c-4750-b2b3-43aa79f7f45b)
+
+![Group 15](https://github.com/PJScript/trip/assets/74460103/5f4ceb38-99b2-4e51-88fe-97035ac3ad07)
+
+![Group 10](https://github.com/PJScript/trip/assets/74460103/246f4973-cb20-4cfb-ae25-7efbefb73ee0)
+
+
+
 <details>
   <summary> 시작하기</summary>
   프로젝트를 실행하기 위한 가이드 입니다.
@@ -93,6 +110,50 @@ SMTP_USERNAME={구글 메일 보낼 때 발신자로 사용할 계정};
 - 회원 인증 인가 관련 기능
 
 
+## ERD
+https://dbdiagram.io/d/like-lion-3team-65f15337b1f3d4062ccba812
 
+![스크린샷 2024-04-18 오전 2 10 25](https://github.com/PJScript/trip/assets/74460103/4ca8af2a-a4c7-432d-a736-d24f11f0cc8c)
+
+
+
+
+
+
+## 기술 스택
+
+<img width="1016" alt="스크린샷 2024-04-18 오전 2 34 26" src="https://github.com/PJScript/trip/assets/74460103/9c1c60e3-ebd6-4a89-8391-fbd6f7f3a2de">
+
+
+
+### 트러블 슈팅
+
+  <details class="accordion">
+    <summary class="accordionTitle">소셜 계정으로 로그인 할 때 토큰 처리 문제</summary>
+    <div class="accordionInner">
+       소셜 계정으로 로그인 할 때, redirect_uri로 이동하고 로그인이 완료되면 엑세스 토큰을 발급해주는데 이 토큰을 어떻게 처리할지 고민이였습니다.
+
+사용자가 인증을 완료하고 redirect_uri로 이동하는데
+Spring Boot 서버에서  @GetMapping("/google/callback") 형식으로 해당 redirect_uri를 처리하고 있습니다.
+
+초기에는 해당 엔드포인트에서 로그인 처리후 엑세스 토큰을 바로 전달해주었는데
+이렇게 되면 프론트 입장에서는 화면에 json 데이터만 뜨고 다른 제어가 불가능하다는 문제가 생김
+
+해결
+ @GetMapping("/google/callback") 엔드포인트에서 
+소셜 사업자 정보와, 랜덤 UUID 정보를 포함하여 아래 프론트 엔드포인트로 리다이렉트 시키고
+/oauth2/callback?socialProvider=GOOGLE&token=randomUUID
+
+랜덤 UUID를 레디스 저장소에 저장하여 임시 사용자로 처리한 뒤 인증하는 형태로 처리했습니다.
+
+이후 프론트에서는 위 엔드포인트에 해당하는 화면을 만들고 자바스크립트로 url에 있는 randomUUID를 추출하여 다시 서버로 로그인 허가 요청을 보냅니다.
+
+GET  /{socialProviderName}/authorize?token={randomUUID} 이 형태로 로그인 허가 요청을 보내면
+
+Spring Boot 서버에서는 레디스를 조회하고 해당 key가 있다면 value로 저장되어있는 엑세스 토큰을 전달 하고 프론트에서는 제어 가능한 페이지가 있으니 해당 페이지에서 토큰을 받아 처리하였습니다.
+
+     </div>
+  </details>
+  
 
 
